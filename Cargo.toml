@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-fpr-cli.path = "../fpr-cli"
+fpr-cli = "0.4.3"
 serde = "1.0.228"
 toml = "1.1.2"
