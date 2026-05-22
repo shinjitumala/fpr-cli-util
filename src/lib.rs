@@ -65,7 +65,7 @@ fn irun<C: Ctx, M: Acts<C>, K: AsRef<OsStr>, P: AsRef<str>>(
         let home = var("HOME").expect("Failed to get variable '$HOME'");
         format!("{home}/{}", config_path_default_home_rel.as_ref())
     }))?;
-    M::run(&c)?;
+    M::run(&c).map_err(|e| format!("{e}"))?;
     Ok(())
 }
 
