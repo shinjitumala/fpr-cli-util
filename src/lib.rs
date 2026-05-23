@@ -57,7 +57,7 @@ where
     fn new(s: &str) -> Result<Self, String>;
 }
 
-fn irun<C: Ctx, M: Acts<C>, K: AsRef<OsStr>, P: AsRef<str>>(
+fn irun<C: Ctx, M: Acts<C>, V: Args<C>, K: AsRef<OsStr>, P: AsRef<str>>(
     config_path_override_env: K,
     config_path_default_home_rel: P,
 ) -> Result<(), String> {
@@ -65,15 +65,19 @@ fn irun<C: Ctx, M: Acts<C>, K: AsRef<OsStr>, P: AsRef<str>>(
         let home = var("HOME").expect("Failed to get variable '$HOME'");
         format!("{home}/{}", config_path_default_home_rel.as_ref())
     }))?;
+    if args().into_iter().skip(1).any(|e| e == *"--version") {
+        V::next_impl(&c, &[]).map_err(|e| format!("{e}"))?;
+        return Ok(());
+    }
     M::run(&c).map_err(|e| format!("{e}"))?;
     Ok(())
 }
 
-pub fn run<C: Ctx, M: Acts<C>, K: AsRef<OsStr>, P: AsRef<str>>(
+pub fn run<C: Ctx, M: Acts<C>, V: Args<C>, K: AsRef<OsStr>, P: AsRef<str>>(
     config_path_override_env: K,
     config_path_default_home_rel: P,
 ) {
-    if let Err(e) = irun::<C, M, K, P>(config_path_override_env, config_path_default_home_rel) {
+    if let Err(e) = irun::<C, M, V, K, P>(config_path_override_env, config_path_default_home_rel) {
         eprintln!("{e}");
     }
 }
@@ -89,7 +93,7 @@ fn irund<C: Ctx, M: Args<C>, V: Args<C>, K: AsRef<OsStr>, P: AsRef<str>>(
     let args: Vec<_> = args().collect();
     let args: Vec<_> = args.iter().skip(1).map(|e| e.as_str()).collect();
     if args.iter().any(|e| *e == "--version") {
-        V::next_impl(&c, &args).map_err(|e| format!("{e}"))?;
+        V::next_impl(&c, &[]).map_err(|e| format!("{e}"))?;
     } else {
         M::next_impl(&c, &args).map_err(|e| format!("{e}"))?;
     }
