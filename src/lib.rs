@@ -91,11 +91,18 @@ fn irund<C: Ctx, M: Args<C>, V: Args<C>, K: AsRef<OsStr>, P: AsRef<str>>(
         format!("{home}/{}", config_path_default_home_rel.as_ref())
     }))?;
     let args: Vec<_> = args().collect();
-    let args: Vec<_> = args.iter().skip(1).map(|e| e.as_str()).collect();
+    let args: Vec<_> = args.iter().map(|e| e.as_str()).collect();
     if args.iter().any(|e| *e == "--version") {
         V::next_impl(&c, &[]).map_err(|e| format!("{e}"))?;
     } else {
-        M::next_impl(&c, &args).map_err(|e| format!("{e}"))?;
+        if let Err(e) = M::next_impl(&c, &args[1..]) {
+            match e {
+                ErrArgs::Help => {
+                    println!("{}", M::full_usage(&c, args[0], &args[1..]));
+                }
+                e => Err(format!("{e}"))?,
+            }
+        }
     }
     Ok(())
 }
