@@ -1,11 +1,14 @@
 [package]
 name = "fpr-cli-util"
-version = "0.4.10"
+version = "0.4.11"
 edition = "2024"
 license = "Apache-2.0"
 description = "Addtional utilities for building CLI tools with fpr-cli."
 
 [dependencies]
-fpr-cli = "0.4.10"
+fpr-cli = "0.4.11"
 serde = "1.0.228"
 toml = "1.1.2"
+
+[features]
+unicode = ["fpr-cli/unicode"]
