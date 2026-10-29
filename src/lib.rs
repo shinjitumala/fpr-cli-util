@@ -7,7 +7,10 @@ use std::{
     io::{BufReader, Read},
     panic::Location,
     path::Path,
+    process,
 };
+
+const EXIT_FAILURE: i32 = 1;
 
 #[macro_export]
 macro_rules! version {
@@ -73,12 +76,17 @@ fn irun<C: Ctx, M: Acts<C>, V: Args<C>, K: AsRef<OsStr>, P: AsRef<str>>(
     Ok(())
 }
 
+fn fail(e: String) -> ! {
+    eprintln!("{e}");
+    process::exit(EXIT_FAILURE);
+}
+
 pub fn run<C: Ctx, M: Acts<C>, V: Args<C>, K: AsRef<OsStr>, P: AsRef<str>>(
     config_path_override_env: K,
     config_path_default_home_rel: P,
 ) {
     if let Err(e) = irun::<C, M, V, K, P>(config_path_override_env, config_path_default_home_rel) {
-        eprintln!("{e}");
+        fail(e);
     }
 }
 
@@ -111,7 +119,7 @@ pub fn rund<M: Args<C>, V: Args<C>, C: Ctx, K: AsRef<OsStr>, P: AsRef<str>>(
     config_path_default_home_rel: P,
 ) {
     if let Err(e) = irund::<C, M, V, K, P>(config_path_override_env, config_path_default_home_rel) {
-        eprintln!("{e}");
+        fail(e);
     }
 }
 
